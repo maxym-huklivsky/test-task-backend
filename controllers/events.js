@@ -18,7 +18,15 @@ const getAllEvents = async (req, res, next) => {
 
     const totalPages = Math.ceil((await Event.find({ owner: _id })).length / limit);
 
-    res.json({ totalPages, page: pageNumber, limit: limitNumber, data: eventsList });
+    const { name, surname, email, phone } = await Customer.findOne({ _id: _id });
+
+    res.json({
+      customerInfo: { name, surname, email, phone },
+      totalPages,
+      page: pageNumber,
+      limit: limitNumber,
+      data: eventsList,
+    });
   } catch (error) {
     next(error);
   }
