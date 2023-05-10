@@ -1,5 +1,6 @@
 const HttpError = require('../helpers/HttpError');
 const { Customer } = require('../models/customer');
+const { Event } = require('../models/event');
 
 const getAllCustomers = async (req, res, next) => {
   try {
@@ -42,6 +43,8 @@ const deleteCustomer = async (req, res, next) => {
     if (!customer) {
       throw HttpError(404, 'No customer found with this id');
     }
+
+    await Event.deleteMany({ owner: customer._id });
 
     res.status(204).send();
   } catch (error) {

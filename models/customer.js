@@ -16,6 +16,7 @@ const customerSchema = new Schema(
       ref: 'user',
     },
     eventsCount: { type: Number, default: 0 },
+    nextEventDate: { type: String, default: 'no date' },
   },
   { versionKey: false },
 );

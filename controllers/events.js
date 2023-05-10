@@ -30,10 +30,20 @@ const createEvent = async (req, res, next) => {
 
     const event = await Event.create({ ...req.body, owner: _id });
 
-    const { eventsCount } = await Customer.findOne({ _id: _id });
+    // eventsCount
+    const customer = await Customer.findOne({ _id: _id });
 
+    // nextEventDate
+    const events = await Event.find({ owner: _id });
+    const nextEventDate = events.reduce(
+      (min, { startDate }) => (startDate < min ? startDate : min),
+      events[0].startDate,
+    );
+
+    // update
     await Customer.findByIdAndUpdate(_id, {
-      eventsCount: eventsCount + 1,
+      eventsCount: customer.eventsCount + 1,
+      nextEventDate,
     });
 
     res.status(201).json(event);
@@ -53,9 +63,21 @@ const deleteEvent = async (req, res, next) => {
       throw HttpError(404, 'No event found with this id');
     }
 
-    const { eventsCount } = await Customer.findOne({ _id: _id });
+    // eventsCount
+    const customer = await Customer.findOne({ _id: _id });
 
-    await Customer.findByIdAndUpdate(_id, { eventsCount: eventsCount - 1 });
+    // nextEventDate
+    const events = await Event.find({ owner: _id });
+    const nextEventDate =
+      events.length === 0
+        ? 'no date'
+        : events.reduce(
+            (min, { startDate }) => (startDate < min ? startDate : min),
+            events[0].startDate,
+          );
+
+    // update
+    await Customer.findByIdAndUpdate(_id, { eventsCount: customer.eventsCount - 1, nextEventDate });
 
     res.status(204).send();
   } catch (error) {
